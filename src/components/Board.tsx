@@ -7,6 +7,7 @@ import {
   initRevealAndFlagArr,
   revealBox,
   revealOneBox,
+  setFlagNum,
   toggleFlag,
 } from "../redux/revealSlice";
 import { RootState } from "@/redux/store";
@@ -17,7 +18,7 @@ export default function Board() {
   const [fail, setFail] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
 
-  const { revealedArr, flagArr, concealNum } = useSelector(
+  const { revealedArr, flagArr, concealNum, flagNum } = useSelector(
     (state: RootState) => state.reveal
   );
 
@@ -50,6 +51,7 @@ export default function Board() {
     // 남아있는 칸의 수와 지뢰수가 같아지면 성공
     if (concealNum === mines) {
       setSuccess(true);
+      dispatch(setFlagNum(0));
     }
   }, [concealNum]);
 
@@ -90,30 +92,54 @@ export default function Board() {
   };
 
   return (
-    <div
-      className={`flex flex-wrap`}
-      style={{
-        width: getBoardSize().width,
-        height: getBoardSize().height,
-      }}
-    >
-      {board.current.map((rows, rowIndex) => {
-        return rows.map((value, colIndex) => {
-          return (
-            <Box
-              key={`${rowIndex}-${colIndex}`}
-              value={value}
-              revealed={revealedArr[rowIndex][colIndex]}
-              flagged={
-                (!success && flagArr[rowIndex][colIndex]) ||
-                (success && value === -1)
-              }
-              onClick={() => handleOnClickBox({ value, rowIndex, colIndex })}
-              onContextMenu={() => dispatch(toggleFlag({ rowIndex, colIndex }))}
-            />
-          );
-        });
-      })}
+    <div className="w-[320px] flex flex-col justify-center items-center gap-2">
+      <div
+        className="flex justify-between"
+        style={{
+          width: getBoardSize().width,
+        }}
+      >
+        <div className="flex justify-center items-center w-10 h-8 border">
+          {flagNum}
+        </div>
+        <button className="w-16 h-8 border">
+          {success && "성공"}
+          {fail && "실패"}
+          {!success && !fail && "다시시작"}
+        </button>
+        <div className="flex justify-center items-center w-10 h-8 border">
+          {flagNum}
+        </div>
+      </div>
+
+      <div
+        className={`flex flex-wrap`}
+        style={{
+          width: getBoardSize().width,
+          height: getBoardSize().height,
+        }}
+      >
+        {board.current.map((rows, rowIndex) => {
+          return rows.map((value, colIndex) => {
+            return (
+              <Box
+                key={`${rowIndex}-${colIndex}`}
+                value={value}
+                revealed={revealedArr[rowIndex][colIndex]}
+                flagged={
+                  (!success && flagArr[rowIndex][colIndex]) ||
+                  (success && value === -1)
+                }
+                failed={fail}
+                onClick={() => handleOnClickBox({ value, rowIndex, colIndex })}
+                onContextMenu={() =>
+                  dispatch(toggleFlag({ rowIndex, colIndex }))
+                }
+              />
+            );
+          });
+        })}
+      </div>
     </div>
   );
 }

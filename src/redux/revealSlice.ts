@@ -114,10 +114,18 @@ export const revealSlice = createSlice({
 
       state.flagArr = updateFlag;
     },
+    setFlagNum: (state, action: PayloadAction<number>) => {
+      state.flagNum = action.payload;
+    },
   },
 });
 
-export const { initRevealAndFlagArr, revealOneBox, revealBox, toggleFlag } =
-  revealSlice.actions;
+export const {
+  initRevealAndFlagArr,
+  revealOneBox,
+  revealBox,
+  toggleFlag,
+  setFlagNum,
+} = revealSlice.actions;
 
 export default revealSlice.reducer;

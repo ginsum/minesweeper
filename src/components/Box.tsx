@@ -1,4 +1,5 @@
 import flagImage from "../assets/flag.png";
+import mineImage from "../assets/mine.png";
 
 const bgColor = ({ revealed }: { revealed: boolean }) => {
   if (revealed) {
@@ -11,12 +12,14 @@ export default function Box({
   value,
   revealed,
   flagged,
+  failed,
   onClick,
   onContextMenu,
 }: {
   value: number;
   revealed: boolean;
   flagged: boolean;
+  failed: boolean;
   onClick: () => void;
   onContextMenu: () => void;
 }) {
@@ -36,6 +39,7 @@ export default function Box({
       {/* {value} */}
       {revealed && value !== 0 ? value : ""}
       {flagged && <img src={flagImage} className="w-8 h-8" />}
+      {failed && value === -1 && <img src={mineImage} className="w-8 h-8" />}
     </div>
   );
 }
