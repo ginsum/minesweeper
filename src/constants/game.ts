@@ -11,3 +11,10 @@ export const typeInfo = {
   [GameType.EXPORT]: { rows: 16, cols: 32, mines: 100 },
   [GameType.CUSTOM]: { rows: 8, cols: 8, mines: 10 },
 };
+
+export const gameTypes = [
+  GameType.BEGINNER,
+  GameType.INTERMEDIATE,
+  GameType.EXPORT,
+  GameType.CUSTOM,
+];

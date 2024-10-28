@@ -1,13 +1,4 @@
-const directions = [
-  [-1, -1],
-  [-1, 0],
-  [-1, 1],
-  [0, -1],
-  [0, 1],
-  [1, -1],
-  [1, 0],
-  [1, 1],
-];
+import { directions } from "../constants";
 
 export function initBoard({ rows, cols }: { rows: number; cols: number }) {
   const boardArr = Array.from({ length: rows }, () => Array(cols).fill(0));
