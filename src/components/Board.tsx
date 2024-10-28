@@ -91,6 +91,20 @@ export default function Board() {
     }
   };
 
+  const restart = () => {
+    const mineBoard = initMines({
+      board: initBoardArr,
+      rows,
+      cols,
+      mines,
+    });
+
+    board.current = mineBoard;
+    dispatch(initRevealAndFlagArr({ rows, cols, mines }));
+    setFail(false);
+    setSuccess(false);
+  };
+
   return (
     <div className="w-[320px] flex flex-col justify-center items-center gap-2">
       <div
@@ -102,7 +116,7 @@ export default function Board() {
         <div className="flex justify-center items-center w-10 h-8 border">
           {flagNum}
         </div>
-        <button className="w-16 h-8 border">
+        <button className="w-16 h-8 border" onClick={restart}>
           {success && "성공"}
           {fail && "실패"}
           {!success && !fail && "다시시작"}
