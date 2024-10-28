@@ -6,7 +6,11 @@ interface SizeType {
   rows: number;
   cols: number;
 }
-interface IndexType {
+
+interface MineSizeType extends SizeType {
+  mines: number;
+}
+export interface IndexType {
   rowIndex: number;
   colIndex: number;
 }
@@ -17,42 +21,55 @@ interface RevealType extends IndexType {
 
 export interface RevealState {
   revealedArr: boolean[][];
+  flagArr: boolean[][];
+  flagNum: number;
+  concealNum: number;
 }
 
 const initialState: RevealState = {
   revealedArr: [[]],
+  flagArr: [[]],
+  flagNum: 0,
+  concealNum: 0,
 };
 
 export const revealSlice = createSlice({
   name: "reveal",
   initialState,
   reducers: {
-    initRevealArr: (state, action: PayloadAction<SizeType>) => {
-      const { rows, cols } = action.payload;
-      const initReveal = Array.from({ length: rows }, () =>
+    initRevealAndFlagArr: (state, action: PayloadAction<MineSizeType>) => {
+      const { rows, cols, mines } = action.payload;
+      const initArr = Array.from({ length: rows }, () =>
         Array(cols).fill(false)
       );
-      state.revealedArr = initReveal;
+      state.revealedArr = initArr;
+      state.flagArr = initArr;
+      state.concealNum = rows * cols;
+      state.flagNum = mines;
     },
     revealOneBox: (state, action: PayloadAction<IndexType>) => {
       const { rowIndex, colIndex } = action.payload;
       const updateReveal = [...state.revealedArr];
       updateReveal[rowIndex][colIndex] = true;
       state.revealedArr = updateReveal;
+      state.concealNum -= 1;
     },
     revealBox: (state, action: PayloadAction<RevealType>) => {
       const { rowIndex, colIndex, board } = action.payload;
       const updateReveal = [...state.revealedArr];
+      let revealedNumber = 0;
 
       const reveal = ({ rowIndex, colIndex, board }: RevealType) => {
         if (
           state.revealedArr[rowIndex][colIndex] ||
-          board[rowIndex][colIndex] === -1
+          board[rowIndex][colIndex] === -1 ||
+          state.flagArr[rowIndex][colIndex]
         ) {
           return;
         }
 
         updateReveal[rowIndex][colIndex] = true;
+        revealedNumber += 1;
 
         directions.forEach(([directionRow, directionCol]) => {
           const currentRow = rowIndex + directionRow;
@@ -62,12 +79,15 @@ export const revealSlice = createSlice({
             currentRow >= 0 &&
             currentCol >= 0 &&
             currentRow < board.length &&
-            currentCol < board[0].length
+            currentCol < board[0].length &&
+            !updateReveal[currentRow][currentCol] &&
+            !state.flagArr[currentRow][currentCol]
           ) {
             if (board[currentRow][currentCol] === 0) {
               reveal({ rowIndex: currentRow, colIndex: currentCol, board });
             } else {
               updateReveal[currentRow][currentCol] = true;
+              revealedNumber += 1;
               return;
             }
           }
@@ -75,10 +95,29 @@ export const revealSlice = createSlice({
       };
       reveal({ rowIndex, colIndex, board });
       state.revealedArr = updateReveal;
+      state.concealNum = state.concealNum - revealedNumber;
+    },
+    toggleFlag: (state, action: PayloadAction<IndexType>) => {
+      const { rowIndex, colIndex } = action.payload;
+
+      if (state.revealedArr[rowIndex][colIndex]) {
+        return;
+      }
+      const updateFlag = [...state.flagArr];
+      if (!updateFlag[rowIndex][colIndex]) {
+        updateFlag[rowIndex][colIndex] = true;
+        state.flagNum -= 1;
+      } else {
+        updateFlag[rowIndex][colIndex] = false;
+        state.flagNum += 1;
+      }
+
+      state.flagArr = updateFlag;
     },
   },
 });
 
-export const { initRevealArr, revealOneBox, revealBox } = revealSlice.actions;
+export const { initRevealAndFlagArr, revealOneBox, revealBox, toggleFlag } =
+  revealSlice.actions;
 
 export default revealSlice.reducer;
