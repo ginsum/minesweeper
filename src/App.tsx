@@ -1,12 +1,9 @@
-import { useState } from "react";
-
+import Board from "./components/Board";
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <div>Minesweeper</div>
-    </>
+    <div className="w-screen h-screen flex flex-col justify-center items-center">
+      <Board />
+    </div>
   );
 }
 
