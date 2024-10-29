@@ -18,6 +18,7 @@ export default function useBoard() {
   const [fail, setFail] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [start, setStart] = useState<boolean>(false);
+  const [customMines, setCustomMines] = useState<number>(10);
 
   const { revealedArr, flagArr, concealNum, flagNum } = useSelector(
     (state: RootState) => state.reveal
@@ -52,19 +53,28 @@ export default function useBoard() {
 
   useEffect(() => {
     // 남아있는 칸의 수와 지뢰수가 같아지면 성공
-    if (concealNum === mines) {
+    const currentMines = type === GameType.CUSTOM ? customMines : mines;
+    if (concealNum === currentMines) {
       setSuccess(true);
       dispatch(setFlagNum(0));
       dispatch(setTimerActive(false));
     }
   }, [concealNum]);
 
-  const handleFirstClick = ({ rowIndex, colIndex }: IndexType) => {
+  const handleFirstClick = ({
+    rowIndex,
+    colIndex,
+    mines,
+  }: {
+    rowIndex: number;
+    colIndex: number;
+    mines: number;
+  }) => {
     // 지뢰수에 맞게 지뢰 생성
     const mineBoard = initMines({
       board: board.current,
-      rows,
-      cols,
+      rows: board.current.length,
+      cols: board.current[0].length,
       mines,
       targetIndex: `${rowIndex},${colIndex}`,
     });
@@ -80,13 +90,15 @@ export default function useBoard() {
     value,
     rowIndex,
     colIndex,
+    mines,
   }: {
     value: number;
     rowIndex: number;
     colIndex: number;
+    mines: number;
   }) => {
     if (!start) {
-      const firstValue = handleFirstClick({ rowIndex, colIndex });
+      const firstValue = handleFirstClick({ rowIndex, colIndex, mines });
       value = firstValue;
     }
     if (revealedArr[rowIndex][colIndex]) {
@@ -136,6 +148,7 @@ export default function useBoard() {
       cols: customCols,
       mines: customMines,
     });
+    setCustomMines(customMines);
   };
 
   return {
@@ -150,5 +163,6 @@ export default function useBoard() {
     handleOnClickBox,
     restart,
     board: board.current,
+    mines: type === GameType.CUSTOM ? customMines : mines,
   };
 }

@@ -17,6 +17,7 @@ export default function Board() {
     fail,
     revealedArr,
     flagArr,
+    mines,
     setType,
     onClickCustom,
     handleOnClickBox,
@@ -75,7 +76,7 @@ export default function Board() {
                   }
                   failed={fail}
                   onClick={() =>
-                    handleOnClickBox({ value, rowIndex, colIndex })
+                    handleOnClickBox({ value, rowIndex, colIndex, mines })
                   }
                   onContextMenu={() =>
                     dispatch(toggleFlag({ rowIndex, colIndex }))
