@@ -47,7 +47,9 @@ export default function Board() {
           </div>
           <button
             className="w-20 h-8 p-1 border rounded-lg hover:bg-slate-200"
-            onClick={restart}
+            onClick={() =>
+              restart({ rows: board.length, cols: board[0].length, mines })
+            }
           >
             {success && "성공"}
             {fail && "실패"}

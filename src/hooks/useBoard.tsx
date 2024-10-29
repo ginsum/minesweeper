@@ -123,7 +123,7 @@ export default function useBoard() {
     }
   };
 
-  const restart = () => {
+  const restart = ({ rows, cols, mines }: MineSizeType) => {
     resetBoardInfo();
     resetBoardArr({ rows, cols, mines });
   };
