@@ -1,6 +1,5 @@
 import { MineSizeType } from "../redux/revealSlice";
 import { useState } from "react";
-import { GameType } from "../constants/game";
 
 export default function CustomType({
   onClickCustom,
@@ -15,26 +14,41 @@ export default function CustomType({
   return (
     <>
       <div className={"flex justify-center gap-4"}>
-        <input
-          className="w-10 border"
-          type="number"
-          value={size.rows}
-          onChange={(e) => setSize({ ...size, rows: Number(e.target.value) })}
-        />
-        <input
-          className="w-10 border"
-          type="number"
-          value={size.cols}
-          onChange={(e) => setSize({ ...size, cols: Number(e.target.value) })}
-        />
-        <input
-          className="w-10 border"
-          type="number"
-          value={size.mines}
-          onChange={(e) => setSize({ ...size, mines: Number(e.target.value) })}
-        />
+        <div className="flex items-center gap-2">
+          <div className="text-sm">높이</div>
+          <input
+            className="w-14 h-8 border"
+            type="number"
+            maxLength={100}
+            value={size.rows}
+            onChange={(e) => setSize({ ...size, rows: Number(e.target.value) })}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="text-sm">너비</div>
+
+          <input
+            className="w-14 h-8 border"
+            type="number"
+            maxLength={100}
+            value={size.cols}
+            onChange={(e) => setSize({ ...size, cols: Number(e.target.value) })}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="text-sm">지뢰수</div>
+          <input
+            className="w-14 h-8 border"
+            type="number"
+            maxLength={(size.rows * size.cols) / 3}
+            value={size.mines}
+            onChange={(e) =>
+              setSize({ ...size, mines: Number(e.target.value) })
+            }
+          />
+        </div>
         <button
-          className="w-10 border"
+          className="w-10 border-2 rounded-lg hover:bg-slate-200"
           onClick={() =>
             onClickCustom({
               rows: size.rows,

@@ -133,6 +133,14 @@ export default function Board() {
     cols: customCols,
     mines: customMines,
   }: MineSizeType) => {
+    if (customCols > 100 || customRows > 100) {
+      alert("너비와 높이는 100까지 가능합니다");
+      return;
+    }
+    if (customMines > (customRows * customCols) / 3) {
+      alert("지뢰수는 너비와 높이의 곱의 1/3까지 가능합니다");
+      return;
+    }
     const initCustomBoardArr = initBoard({
       rows: customRows,
       cols: customCols,
@@ -154,9 +162,14 @@ export default function Board() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col justify-center items-center gap-8">
       <GameTypeButton setType={setType} />
-      {type === GameType.CUSTOM && <CustomType onClickCustom={onClickCustom} />}
+      <div className="h-10">
+        {type === GameType.CUSTOM && (
+          <CustomType onClickCustom={onClickCustom} />
+        )}
+      </div>
+
       <div className="w-[320px] flex flex-col justify-center items-center gap-2">
         <div
           className="flex justify-between"
@@ -165,10 +178,13 @@ export default function Board() {
               .width,
           }}
         >
-          <div className="flex justify-center items-center w-10 h-8 border">
+          <div className="flex justify-center items-center w-10 h-8 border border-blue-300">
             {flagNum}
           </div>
-          <button className="w-16 h-8 border" onClick={restart}>
+          <button
+            className="w-20 h-8 p-1 border rounded-lg hover:bg-slate-200"
+            onClick={restart}
+          >
             {success && "성공"}
             {fail && "실패"}
             {!success && !fail && "다시시작"}

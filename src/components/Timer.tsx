@@ -10,7 +10,7 @@ export default function Timer() {
 
   useEffect(() => {
     let interval: number | undefined;
-    if (times >= 10) {
+    if (times >= 999) {
       dispatch(setTimerActive(false));
     }
     if (timerActive) {
