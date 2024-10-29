@@ -1,4 +1,4 @@
-import { MineSizeType } from "../redux/revealSlice";
+import { MineSizeType } from "@/type";
 import { useState } from "react";
 
 export default function CustomType({

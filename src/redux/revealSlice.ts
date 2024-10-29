@@ -1,23 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { directions } from "../constants";
-
-interface SizeType {
-  rows: number;
-  cols: number;
-}
-
-export interface MineSizeType extends SizeType {
-  mines: number;
-}
-export interface IndexType {
-  rowIndex: number;
-  colIndex: number;
-}
-
-interface RevealType extends IndexType {
-  board: number[][];
-}
+import { IndexType, MineSizeType, RevealType } from "@/type";
 
 export interface RevealState {
   revealedArr: boolean[][];
