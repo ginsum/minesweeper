@@ -7,7 +7,7 @@ interface SizeType {
   cols: number;
 }
 
-interface MineSizeType extends SizeType {
+export interface MineSizeType extends SizeType {
   mines: number;
 }
 export interface IndexType {
