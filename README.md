@@ -1,50 +1,58 @@
-# React + TypeScript + Vite
+# Minesweeper
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+이 프로젝트는 지뢰찾기를 할 수 있는 웹 페이지입니다. <br/>
 
-Currently, two official plugins are available:
+## 주요 기능
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 지뢰찾기 게임을 할 수 있음
+- 난이도를 조절할 수 있음(Beginner, Intermediate, Expert)
+- 커스텀(가로, 세로, 지뢰) 가능
+- 오른쪽 클릭으로 깃발 꽂기 가능
+- 타이머 작동
+- 첫 클릭으로 지뢰가 터지지 않음
 
-## Expanding the ESLint configuration
+## 기술 스택
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- react
+- typeScript
+- redux-Toolkit
+- tailwindCSS
 
-- Configure the top-level `parserOptions` property like this:
+## 폴더 구조
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```
+src/
+├── components/
+├── hooks/
+├── constants/
+├── lib/
+├── redux/
+└── type/
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## 설치 및 시작
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+1.  설치
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
 ```
+npm install
+또는
+yarn install
+```
+
+2.  개발서버 실행
+
+```
+npm run dev
+또는
+yarn dev
+```
+
+3. 브라우저 접속
+   http://localhost:5173/
+
+- 참고 사항
+
+* 처음엔 전역으로 상태를 처리할 일이 있을거라 생각하여 칸 클릭하여 열리는 로직을 redux로 처리하였는데, 전역 상태로 관리할 구조가 아니라서 수정하려고 하였으나 시간상 수정하지 못하여 아쉬움이 남습니다.
+
+\*\* 이 프로젝트는 PC 화면에 최적화 되어 있습니다.
