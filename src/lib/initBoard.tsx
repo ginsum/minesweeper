@@ -11,11 +11,13 @@ export function initMines({
   rows,
   cols,
   mines,
+  targetIndex,
 }: {
   board: number[][];
   rows: number;
   cols: number;
   mines: number;
+  targetIndex: string;
 }) {
   const minePositions: string[] = [];
   for (let i = 0; minePositions.length < mines; i++) {
@@ -23,7 +25,7 @@ export function initMines({
     const mineCol = Math.floor(Math.random() * cols);
     const position = `${mineRow},${mineCol}`;
 
-    if (!minePositions.includes(position)) {
+    if (!minePositions.includes(position) && targetIndex !== position) {
       minePositions.push(position);
       board[mineRow][mineCol] = -1;
     }

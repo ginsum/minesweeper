@@ -4,6 +4,7 @@ import { GameType, typeInfo } from "../constants/game";
 import Box from "./Box";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  IndexType,
   initRevealAndFlagArr,
   MineSizeType,
   revealBox,
@@ -14,12 +15,15 @@ import {
 import { RootState } from "@/redux/store";
 import GameTypeButton from "./GameTypeButton";
 import CustomType from "./CustomType";
+import Timer from "./Timer";
+import { setTimerActive, setTimesZero } from "../redux/timerSlice";
 
 export default function Board() {
   const [type, setType] = useState<GameType>(GameType.BEGINNER);
 
   const [fail, setFail] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+  const [start, setStart] = useState<boolean>(false);
 
   const { revealedArr, flagArr, concealNum, flagNum } = useSelector(
     (state: RootState) => state.reveal
@@ -33,17 +37,13 @@ export default function Board() {
   useEffect(() => {
     setFail(false);
     setSuccess(false);
+    setStart(false);
+    dispatch(setTimerActive(false));
+    dispatch(setTimesZero());
     // 너비 높이에 따라 board array 생성
     const initBoardArr = initBoard({ rows, cols });
-    // 지뢰수에 맞게 지뢰 생성
-    const mineBoard = initMines({
-      board: initBoardArr,
-      rows,
-      cols,
-      mines,
-    });
+    board.current = initBoardArr;
 
-    board.current = mineBoard;
     // 열린칸을 판단하기 위한 revealArr와 깃발을 위한 flagArr 생성
     dispatch(initRevealAndFlagArr({ rows, cols, mines }));
   }, [type]);
@@ -53,6 +53,7 @@ export default function Board() {
     if (concealNum === mines) {
       setSuccess(true);
       dispatch(setFlagNum(0));
+      dispatch(setTimerActive(false));
     }
   }, [concealNum]);
 
@@ -61,6 +62,23 @@ export default function Board() {
       width: `${cols * 8 * 4}px`,
       height: `${rows * 8 * 4}px`,
     };
+  };
+
+  const handleFirstClick = ({ rowIndex, colIndex }: IndexType) => {
+    // 지뢰수에 맞게 지뢰 생성
+    const mineBoard = initMines({
+      board: board.current,
+      rows,
+      cols,
+      mines,
+      targetIndex: `${rowIndex},${colIndex}`,
+    });
+
+    board.current = mineBoard;
+    setStart(true);
+    dispatch(setTimerActive(true));
+
+    return mineBoard[rowIndex][colIndex];
   };
 
   const handleOnClickBox = ({
@@ -72,6 +90,10 @@ export default function Board() {
     rowIndex: number;
     colIndex: number;
   }) => {
+    if (!start) {
+      const firstValue = handleFirstClick({ rowIndex, colIndex });
+      value = firstValue;
+    }
     if (revealedArr[rowIndex][colIndex]) {
       return;
     }
@@ -80,6 +102,8 @@ export default function Board() {
     }
     if (value === -1) {
       setFail(true);
+      dispatch(setTimerActive(false));
+
       return;
     }
     if (value !== 0) {
@@ -95,15 +119,12 @@ export default function Board() {
   const restart = () => {
     setFail(false);
     setSuccess(false);
+    setStart(false);
+    dispatch(setTimerActive(false));
+    dispatch(setTimesZero());
     const boardArr = initBoard({ rows, cols });
-    const mineBoard = initMines({
-      board: boardArr,
-      rows,
-      cols,
-      mines,
-    });
 
-    board.current = mineBoard;
+    board.current = boardArr;
     dispatch(initRevealAndFlagArr({ rows, cols, mines }));
   };
 
@@ -117,14 +138,7 @@ export default function Board() {
       cols: customCols,
     });
 
-    const mineBoard = initMines({
-      board: initCustomBoardArr,
-      rows: customRows,
-      cols: customCols,
-      mines: customMines,
-    });
-
-    board.current = mineBoard;
+    board.current = initCustomBoardArr;
     dispatch(
       initRevealAndFlagArr({
         rows: customRows,
@@ -134,6 +148,9 @@ export default function Board() {
     );
     setFail(false);
     setSuccess(false);
+    setStart(false);
+    dispatch(setTimerActive(false));
+    dispatch(setTimesZero());
   };
 
   return (
@@ -156,9 +173,7 @@ export default function Board() {
             {fail && "실패"}
             {!success && !fail && "다시시작"}
           </button>
-          <div className="flex justify-center items-center w-10 h-8 border">
-            {flagNum}
-          </div>
+          <Timer />
         </div>
 
         <div
