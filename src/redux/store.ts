@@ -1,12 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-
-import revealSlice from "./revealSlice";
+import boardSlice from "./boardSlice";
+import statusSlice from "./statusSlice";
 import timerSlice from "./timerSlice";
 
 export const store = configureStore({
   reducer: {
-    reveal: revealSlice,
+    board: boardSlice,
     timer: timerSlice,
+    status: statusSlice,
   },
 });
 
