@@ -1,105 +1,89 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-import { initBoard, initMines } from "../lib/initBoard";
-import { GameType, typeInfo } from "../constants/game";
+import { RootState } from "../redux/store";
+
+import { GameType } from "../constants/game";
 import { setTimerActive, setTimesZero } from "../redux/timerSlice";
-import {
-  initRevealAndFlagArr,
-  revealBox,
-  revealOneBox,
-  setFlagNum,
-} from "../redux/revealSlice";
+import { setBoardInfo, setType } from "../redux/boardSlice";
 import { IndexType, MineSizeType } from "@/type";
+import { resetStatus, setFail, setSuccess } from "../redux/statusSlice";
+import useSetBoard from "./useSetBoard";
 
 export default function useBoard() {
-  const [type, setType] = useState<GameType>(GameType.BEGINNER);
+  const [start, setStart] = useState<boolean>(true);
 
-  const [fail, setFail] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
-  const [start, setStart] = useState<boolean>(false);
-  const [customMines, setCustomMines] = useState<number>(10);
+  const {
+    resetBoard,
+    initMines,
+    revealOneBox,
+    revealBox,
+    toggleFlag,
+    setFlagNum,
+    boardArr,
+    revealedArr,
+    flagArr,
+    concealNum,
+    flagNum,
+  } = useSetBoard();
 
-  const { revealedArr, flagArr, concealNum, flagNum } = useSelector(
-    (state: RootState) => state.reveal
+  const { type, info: boardInfo } = useSelector(
+    (state: RootState) => state.board
   );
+  const { rows, cols, mines } = boardInfo;
+
+  const { fail, success } = useSelector((state: RootState) => state.status);
 
   const dispatch = useDispatch();
 
-  const { rows, cols, mines } = typeInfo[type];
-  const board = useRef<number[][]>([[]]);
-
   const resetBoardInfo = () => {
-    setFail(false);
-    setSuccess(false);
+    dispatch(resetStatus());
     setStart(false);
     dispatch(setTimerActive(false));
     dispatch(setTimesZero());
   };
 
-  const resetBoardArr = ({ rows, cols, mines }: MineSizeType) => {
-    // 너비 높이에 따라 board array 생성
-    const boardArr = initBoard({ rows, cols });
-    board.current = boardArr;
-
-    // 열린칸을 판단하기 위한 revealArr와 깃발을 위한 flagArr 생성
-    dispatch(initRevealAndFlagArr({ rows, cols, mines }));
-  };
-
   useEffect(() => {
+    resetBoard();
     resetBoardInfo();
-    resetBoardArr({ rows, cols, mines });
-  }, [type]);
+  }, [type, rows, cols, mines]);
 
   useEffect(() => {
     // 남아있는 칸의 수와 지뢰수가 같아지면 성공
-    const currentMines = type === GameType.CUSTOM ? customMines : mines;
-    if (concealNum === currentMines) {
-      setSuccess(true);
-      dispatch(setFlagNum(0));
+    if (concealNum === mines) {
+      dispatch(setSuccess(true));
+      setFlagNum(0);
       dispatch(setTimerActive(false));
     }
   }, [concealNum]);
 
-  const handleFirstClick = ({
-    rowIndex,
-    colIndex,
-    mines,
-  }: {
-    rowIndex: number;
-    colIndex: number;
-    mines: number;
-  }) => {
+  const handleFirstClick = ({ rowIndex, colIndex }: IndexType) => {
     // 지뢰수에 맞게 지뢰 생성
-    const mineBoard = initMines({
-      board: board.current,
-      rows: board.current.length,
-      cols: board.current[0].length,
-      mines,
-      targetIndex: `${rowIndex},${colIndex}`,
-    });
-
-    board.current = mineBoard;
+    const value = initMines({ rowIndex, colIndex });
     setStart(true);
     dispatch(setTimerActive(true));
 
-    return mineBoard[rowIndex][colIndex];
+    if (value !== 0) {
+      revealOneBox({ rowIndex, colIndex });
+      return;
+    }
+    if (value === 0) {
+      revealBox({ rowIndex, colIndex });
+      return;
+    }
   };
 
   const handleOnClickBox = ({
     value,
     rowIndex,
     colIndex,
-    mines,
   }: {
     value: number;
     rowIndex: number;
     colIndex: number;
-    mines: number;
   }) => {
     if (!start) {
-      const firstValue = handleFirstClick({ rowIndex, colIndex, mines });
-      value = firstValue;
+      handleFirstClick({ rowIndex, colIndex });
+      return;
     }
     if (revealedArr[rowIndex][colIndex]) {
       return;
@@ -108,24 +92,24 @@ export default function useBoard() {
       return;
     }
     if (value === -1) {
-      setFail(true);
+      dispatch(setFail(true));
       dispatch(setTimerActive(false));
 
       return;
     }
     if (value !== 0) {
-      dispatch(revealOneBox({ rowIndex, colIndex }));
+      revealOneBox({ rowIndex, colIndex });
       return;
     }
     if (value === 0) {
-      dispatch(revealBox({ rowIndex, colIndex, board: board.current }));
+      revealBox({ rowIndex, colIndex });
       return;
     }
   };
 
-  const restart = ({ rows, cols, mines }: MineSizeType) => {
+  const restart = () => {
     resetBoardInfo();
-    resetBoardArr({ rows, cols, mines });
+    resetBoard();
   };
 
   const onClickCustom = ({
@@ -142,27 +126,24 @@ export default function useBoard() {
       return;
     }
 
-    resetBoardInfo();
-    resetBoardArr({
-      rows: customRows,
-      cols: customCols,
-      mines: customMines,
-    });
-    setCustomMines(customMines);
+    dispatch(setType(GameType.CUSTOM));
+    dispatch(
+      setBoardInfo({
+        rows: customRows,
+        cols: customCols,
+        mines: customMines,
+      })
+    );
   };
 
   return {
-    type,
-    flagNum,
-    success,
-    fail,
+    board: boardArr,
     revealedArr,
     flagArr,
-    setType,
+    flagNum,
     onClickCustom,
     handleOnClickBox,
     restart,
-    board: board.current,
-    mines: type === GameType.CUSTOM ? customMines : mines,
+    toggleFlag,
   };
 }
